@@ -39,7 +39,14 @@ public class MyDB extends SQLiteOpenHelper {
         values.put("gia_dien", gd);
         db.replace("phong", null, values);
     }
-
+    // Hàm xóa dữ liệu theo số phòng
+    public int Delete_Data(String so) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        // Trả về số dòng bị xóa (thường là 1 nếu thành công, 0 nếu không tìm thấy)
+        int result = db.delete("phong", "so_phong=?", new String[]{so});
+        db.close();
+        return result;
+    }
     // Hàm xuất file .db ra thư mục Download
     public String exportDatabase() {
         try {
