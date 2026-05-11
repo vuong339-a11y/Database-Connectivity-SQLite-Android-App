@@ -13,9 +13,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
-        MyDBHandler = new MyDB(this, "phongtro", null, 1);
-        
+        MyDBHandler = new MyDB(this, null, null, 1);
         edSo = findViewById(R.id.editSoPhong);
         edGia = findViewById(R.id.editGiaPhong);
         edMoi = findViewById(R.id.editDienMoi);
@@ -23,37 +21,44 @@ public class MainActivity extends AppCompatActivity {
         edGiaDien = findViewById(R.id.editGiaDien);
     }
 
+    // Hàm hỗ trợ đổi số phòng
+    private void changeRoom(int delta) {
+        try {
+            int currentRoom = Integer.parseInt(edSo.getText().toString());
+            edSo.setText(String.valueOf(currentRoom + delta));
+        } catch (Exception e) {
+            edSo.setText("101"); // Nếu chưa có số thì mặc định bắt đầu từ 101
+        }
+    }
+
+    public void next(View v) { changeRoom(1); }
+    public void pre(View v) { changeRoom(-1); }
+    public void next10(View v) { changeRoom(10); }
+    public void pre10(View v) { changeRoom(-10); }
+
     public void Save(View view) {
         try {
-            String so = edSo.getText().toString();
-            int gia = Integer.parseInt(edGia.getText().toString());
-            int dm = Integer.parseInt(edMoi.getText().toString());
-            int dc = Integer.parseInt(edCu.getText().toString());
-            int gd = Integer.parseInt(edGiaDien.getText().toString());
+            MyDBHandler.Save_Data(edSo.getText().toString(), 
+                Integer.parseInt(edGia.getText().toString()),
+                Integer.parseInt(edMoi.getText().toString()),
+                Integer.parseInt(edCu.getText().toString()),
+                Integer.parseInt(edGiaDien.getText().toString()));
+            Toast.makeText(this, "Đã lưu!", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) { Toast.makeText(this, "Lỗi nhập liệu!", Toast.LENGTH_SHORT).show(); }
+    }
 
-            MyDBHandler.Save_Data(so, gia, dm, dc, gd);
-            Toast.makeText(this, "Đã lưu thành công!", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Toast.makeText(this, "Vui lòng nhập đủ số liệu!", Toast.LENGTH_SHORT).show();
-        }
+    public void Backup(View v) {
+        String msg = MyDBHandler.exportDatabase();
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+    }
+
+    public void Delete(View v) {
+        if (MyDBHandler.Delete_Data(edSo.getText().toString()) > 0) 
+            Toast.makeText(this, "Đã xóa!", Toast.LENGTH_SHORT).show();
     }
 
     public void Display(View v) {
         String data = MyDBHandler.Display_Data();
-        if(data.equals("")) Toast.makeText(this, "Trống!", Toast.LENGTH_SHORT).show();
-        else {
-            // Hiển thị tạm qua Toast, bạn có thể thay bằng TextView nếu muốn
-            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-            builder.setMessage(data).setTitle("Hóa Đơn Phòng Trọ").show();
-        }
-    }
-
-    public void Delete(View v) {
-        String so = edSo.getText().toString();
-        if (MyDBHandler.Delete_Data(so) > 0) {
-            Toast.makeText(this, "Đã xóa phòng " + so, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Không tìm thấy phòng!", Toast.LENGTH_SHORT).show();
-        }
+        new android.app.AlertDialog.Builder(this).setMessage(data).setTitle("Danh sách").show();
     }
 }
