@@ -30,4 +30,4 @@ jobs:
         with:
           name: Ung_Dung_Android
           # Đường dẫn mặc định nơi file APK sinh ra
-          path: app/build/outputs/apk/debug/*.apk
+          path: "Source code/app/build/outputs/apk/debug/*.apk"
