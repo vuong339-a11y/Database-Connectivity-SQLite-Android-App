@@ -19,7 +19,7 @@ jobs:
 
       - name: Grant execute permission for gradlew
         # Cấp quyền chạy cho file build của Android
-        run: chmod +x gradlew
+        run: chmod +x Source code/gradlew
 
       - name: Build with Gradle
         # Lệnh này sẽ tạo ra file APK bản dùng thử (Debug)
