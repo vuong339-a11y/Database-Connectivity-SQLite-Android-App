@@ -5,43 +5,64 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
+
 public class MyDB extends SQLiteOpenHelper {
-    public MyDB(@Nullable Context context, @Nullable String name, @Nullable
-            SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, name, factory, version);
+    public MyDB(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
+        super(context, "PhongTro.db", factory, version);
     }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table student(stud_Id varChar(10) , stud_Name varChar(20))");
+        // Tạo bảng với các cột bạn cần
+        db.execSQL("create table phong(so_phong TEXT primary key, gia INTEGER, dien_moi INTEGER, dien_cu INTEGER, gia_dien INTEGER)");
     }
+
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        //body
+    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+        db.execSQL("DROP TABLE IF EXISTS phong");
+        onCreate(db);
     }
-    void Read_Data(String studentId, String studentName) {
+
+    // Thêm hoặc Sửa phòng (Dùng replace để nếu trùng số phòng nó sẽ tự cập nhật mới)
+    void Save_Data(String so, int gia, int dm, int dc, int gd) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("stud_Id", studentId);
-        contentValues.put("stud_Name", studentName);
-        db.insert("student", null, contentValues);
+        ContentValues values = new ContentValues();
+        values.put("so_phong", so);
+        values.put("gia", gia);
+        values.put("dien_moi", dm);
+        values.put("dien_cu", dc);
+        values.put("gia_dien", gd);
+        db.replace("phong", null, values); 
         db.close();
     }
+
+    // Xóa phòng theo số phòng
+    int Delete_Data(String so) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete("phong", "so_phong=?", new String[]{so});
+    }
+
+    // Lấy dữ liệu hiển thị (kèm tính toán)
     String Display_Data() {
         String result = "";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("select * from student", null);
+        Cursor cursor = db.rawQuery("select * from phong", null);
         while (cursor.moveToNext()) {
-            String id = cursor.getString(0);
-            String name = cursor.getString(1);
-            result += id + ":" + name + "\n";
+            String so = cursor.getString(0);
+            int gia = cursor.getInt(1);
+            int dm = cursor.getInt(2);
+            int dc = cursor.getInt(3);
+            int gd = cursor.getInt(4);
+            
+            // Công thức tính toán của bạn
+            int tongDien = (dm - dc) * gd;
+            int tongCong = gia + tongDien;
+
+            result += "Phòng: " + so + " | Tổng: " + tongCong + "k\n";
+            result += "(Điện: " + (dm-dc) + " số * " + gd + "đ = " + tongDien + ")\n----------\n";
         }
+        cursor.close();
         db.close();
         return result;
-    }
-    int Delete_Data(String id){
-        SQLiteDatabase db = this.getWritableDatabase();
-        String sql="delete from student where stud_Id="+id;
-        return (db.delete("student","stud_Id=?",new String[]{id}));
-        //db.close();
     }
 }
