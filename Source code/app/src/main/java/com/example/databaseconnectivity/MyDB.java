@@ -4,16 +4,22 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.channels.FileChannel;
 import androidx.annotation.Nullable;
 
 public class MyDB extends SQLiteOpenHelper {
+    private Context context;
     public MyDB(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
         super(context, "PhongTro.db", factory, version);
+        this.context = context;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Tạo bảng với các cột bạn cần
         db.execSQL("create table phong(so_phong TEXT primary key, gia INTEGER, dien_moi INTEGER, dien_cu INTEGER, gia_dien INTEGER)");
     }
 
@@ -23,8 +29,7 @@ public class MyDB extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    // Thêm hoặc Sửa phòng (Dùng replace để nếu trùng số phòng nó sẽ tự cập nhật mới)
-    void Save_Data(String so, int gia, int dm, int dc, int gd) {
+    public void Save_Data(String so, int gia, int dm, int dc, int gd) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("so_phong", so);
@@ -32,37 +37,31 @@ public class MyDB extends SQLiteOpenHelper {
         values.put("dien_moi", dm);
         values.put("dien_cu", dc);
         values.put("gia_dien", gd);
-        db.replace("phong", null, values); 
-        db.close();
+        db.replace("phong", null, values);
     }
 
-    // Xóa phòng theo số phòng
-    int Delete_Data(String so) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete("phong", "so_phong=?", new String[]{so});
-    }
+    // Hàm xuất file .db ra thư mục Download
+    public String exportDatabase() {
+        try {
+            File sd = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            File data = Environment.getDataDirectory();
 
-    // Lấy dữ liệu hiển thị (kèm tính toán)
-    String Display_Data() {
-        String result = "";
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("select * from phong", null);
-        while (cursor.moveToNext()) {
-            String so = cursor.getString(0);
-            int gia = cursor.getInt(1);
-            int dm = cursor.getInt(2);
-            int dc = cursor.getInt(3);
-            int gd = cursor.getInt(4);
-            
-            // Công thức tính toán của bạn
-            int tongDien = (dm - dc) * gd;
-            int tongCong = gia + tongDien;
+            if (sd.canWrite()) {
+                String currentDBPath = "//data//" + context.getPackageName() + "//databases//PhongTro.db";
+                String backupDBName = "bak_PhongTro_" + System.currentTimeMillis() + ".db";
+                File currentDB = new File(data, currentDBPath);
+                File backupDB = new File(sd, backupDBName);
 
-            result += "Phòng: " + so + " | Tổng: " + tongCong + "k\n";
-            result += "(Điện: " + (dm-dc) + " số * " + gd + "đ = " + tongDien + ")\n----------\n";
+                FileChannel src = new FileInputStream(currentDB).getChannel();
+                FileChannel dst = new FileOutputStream(backupDB).getChannel();
+                dst.transferFrom(src, 0, src.size());
+                src.close();
+                dst.close();
+                return "Đã lưu: " + backupDBName + " trong Download";
+            }
+        } catch (Exception e) {
+            return "Lỗi: " + e.getMessage();
         }
-        cursor.close();
-        db.close();
-        return result;
+        return "Không thể ghi file!";
     }
 }
