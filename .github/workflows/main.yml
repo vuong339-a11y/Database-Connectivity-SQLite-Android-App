@@ -7,23 +7,21 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Set up JDK 21 # Chuẩn mới nhất 2025
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: gradle
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+      # Sửa đường dẫn ở đây: thêm Source code/Source code/ vào trước gradlew
+      - name: Grant execute permission
+        run: chmod +x "Source code/gradlew"
 
-      - name: Build APK
-        # Lệnh này tự động tải Gradle và Android SDK mới nhất để build
-        run: cd "Source code"
-            chmod +x gradlew
-            ./gradlew assembleDebug
-            
+      - name: Build with Gradle
+        # Phải chui vào thư mục đó rồi mới chạy lệnh build
+        run: |
+          cd "Source code"
+          ./gradlew assembleDebug
 
       - name: Upload APK Result
         uses: actions/upload-artifact@v4
