@@ -1,23 +1,24 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
+    android:layout_width="match_parent" android:layout_height="match_parent" android:padding="10dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+        
         <EditText android:id="@+id/editSoPhong" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Số phòng" />
-        <EditText android:id="@+id/editGiaPhong" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Giá phòng" android:inputType="number" />
-        <EditText android:id="@+id/editDienMoi" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Chỉ số điện mới" android:inputType="number" />
-        <EditText android:id="@+id/editDienCu" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Chỉ số điện cũ" android:inputType="number" />
-        <EditText android:id="@+id/editGiaDien" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Giá điện (đ/số)" android:inputType="number" />
+        <EditText android:id="@+id/editGiaPhong" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Giá" android:inputType="number" />
+        <EditText android:id="@+id/editDienMoi" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Điện mới" android:inputType="number" />
+        <EditText android:id="@+id/editDienCu" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Điện cũ" android:inputType="number" />
+        <EditText android:id="@+id/editGiaDien" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Giá điện" android:inputType="number" />
 
-        <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Thêm / Sửa Phòng" android:onClick="Save" />
-        <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Xóa Phòng" android:onClick="Delete" />
-        <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Xem Danh Sách" android:onClick="Display" />
+        <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:columnCount="4" android:rowCount="1">
+            <Button android:text="-10" android:onClick="pre10" />
+            <Button android:text="Pre" android:onClick="pre" />
+            <Button android:text="Next" android:onClick="next" />
+            <Button android:text="+10" android:onClick="next10" />
+        </GridLayout>
+
+        <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:text="LƯU / SỬA" android:onClick="Save" android:backgroundTint="#4CAF50" />
+        <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:text="XÓA PHÒNG" android:onClick="Delete" android:backgroundTint="#F44336" />
+        <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:text="XUẤT FILE BACKUP (.DB)" android:onClick="Backup" android:backgroundTint="#2196F3" />
+        <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:text="XEM DANH SÁCH" android:onClick="Display" />
 
     </LinearLayout>
 </ScrollView>
