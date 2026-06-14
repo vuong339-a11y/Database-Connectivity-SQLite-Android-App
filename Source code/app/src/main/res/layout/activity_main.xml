@@ -5,15 +5,55 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <EditText android:id="@+id/edtId" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="ID (Tự động tăng hoặc nhập)" android:inputType="number" />
-    <EditText android:id="@+id/edtSoPhong" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Số phòng" />
-    <EditText android:id="@+id/edtGia" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Giá phòng" android:inputType="number" />
-    <EditText android:id="@+id/edtDien" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Số điện" android:inputType="number" />
-    <EditText android:id="@+id/edtTong" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Tổng tiền (Giá * Điện)" android:focusable="false" android:clickable="false" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nhập mật khẩu để mở nhật ký:"
+        android:textSize="14sp"
+        android:textStyle="bold" />
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="20dp">
-        <Button android:id="@+id/btnTaoMoi" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tạo mới" />
-        <Button android:id="@+id/btnLuu" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Lưu" />
-        <Button android:id="@+id/btnXem" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Xem" />
-    </LinearLayout>
+    <EditText
+        android:id="@+id/etPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Mật khẩu"
+        android:inputType="textPassword" />
+
+    <Button
+        android:id="@+id/btnUnlock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Mở Nhật Ký" />
+
+    <TextView
+        android:id="@+id/tvDiaryLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Nội dung nhật ký:"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/etContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="4dp"
+        android:gravity="top"
+        android:hint="Viết nhật ký của bạn tại đây..."
+        android:inputType="textMultiLine"
+        android:scrollbars="vertical"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Lưu Nhật Ký"
+        android:visibility="gone" />
+
 </LinearLayout>
