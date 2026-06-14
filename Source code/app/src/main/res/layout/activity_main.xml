@@ -1,24 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent" android:padding="10dp">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-        
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <ImageView
+            android:id="@+id/imgLogoQR"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="15dp"
+            android:src="@drawable/qr"
+            android:contentDescription="Mã QR Thanh Toán" />
+
         <EditText android:id="@+id/editSoPhong" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Số phòng" />
-        <EditText android:id="@+id/editGiaPhong" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Giá" android:inputType="number" />
+        <EditText android:id="@+id/editGiaPhong" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Giá phòng" android:inputType="number" />
         <EditText android:id="@+id/editDienMoi" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Điện mới" android:inputType="number" />
         <EditText android:id="@+id/editDienCu" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Điện cũ" android:inputType="number" />
         <EditText android:id="@+id/editGiaDien" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Giá điện" android:inputType="number" />
 
-        <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:columnCount="4" android:rowCount="1">
-            <Button android:text="-10" android:onClick="pre10" />
-            <Button android:text="Pre" android:onClick="pre" />
-            <Button android:text="Next" android:onClick="next" />
-            <Button android:text="+10" android:onClick="next10" />
-        </GridLayout>
+        <LinearLayout 
+            android:layout_width="match_parent" 
+            android:layout_height="wrap_content" 
+            android:orientation="horizontal"
+            android:weightSum="4"
+            android:layout_marginTop="5dp">
+            <Button android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="-10" android:onClick="pre10" />
+            <Button android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Pre" android:onClick="pre" />
+            <Button android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Next" android:onClick="next" />
+            <Button android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="+10" android:onClick="next10" />
+        </LinearLayout>
 
-        <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:text="LƯU / SỬA" android:onClick="Save" android:backgroundTint="#4CAF50" />
+        <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:text="LƯU / SỬA PHÒNG" android:onClick="Save" android:backgroundTint="#4CAF50" />
         <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:text="XÓA PHÒNG" android:onClick="Delete" android:backgroundTint="#F44336" />
         <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:text="XUẤT FILE BACKUP (.DB)" android:onClick="Backup" android:backgroundTint="#2196F3" />
-        <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:text="XEM DANH SÁCH" android:onClick="Display" />
+        <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:text="XEM DANH SÁCH" android:onClick="Display" android:backgroundTint="#FF9800" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nội dung danh sách hóa đơn (Ấn giữ để copy):"
+            android:textStyle="bold"
+            android:layout_marginTop="15dp" />
+
+        <EditText
+            android:id="@+id/editKetQua"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minLines="5"
+            android:gravity="top|left"
+            android:background="@android:drawable/editbox_background"
+            android:padding="8dp"
+            android:focusable="true"
+            android:textIsSelectable="true"
+            android:cursorVisible="false"
+            android:inputType="textMultiLine" />
 
     </LinearLayout>
 </ScrollView>
