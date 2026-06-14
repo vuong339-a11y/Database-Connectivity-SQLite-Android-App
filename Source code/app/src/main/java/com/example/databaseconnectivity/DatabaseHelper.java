@@ -1,4 +1,4 @@
-package com.example.sqlite_download; // Đổi lại đúng package của bạn
+package com.example.databaseconnectivity;// Đổi lại đúng package của bạn
 
 import android.content.ContentValues;
 import android.content.Context;
