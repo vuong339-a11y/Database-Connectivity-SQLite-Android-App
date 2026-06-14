@@ -6,22 +6,24 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
-    EditText edSo, edGia, edMoi, edCu, edGiaDien;
+    EditText edSo, edGia, edMoi, edCu, edGiaDien, edKetQua;
     MyDB MyDBHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
         MyDBHandler = new MyDB(this, null, null, 1);
+        
         edSo = findViewById(R.id.editSoPhong);
         edGia = findViewById(R.id.editGiaPhong);
         edMoi = findViewById(R.id.editDienMoi);
         edCu = findViewById(R.id.editDienCu);
         edGiaDien = findViewById(R.id.editGiaDien);
+        edKetQua = findViewById(R.id.editKetQua); // Ánh xạ ô kết quả để copy
     }
 
-    // Các nút Next/Pre
     private void adjustRoom(int val) {
         try {
             int num = Integer.parseInt(edSo.getText().toString());
@@ -40,18 +42,26 @@ public class MainActivity extends AppCompatActivity {
                     Integer.parseInt(edMoi.getText().toString()),
                     Integer.parseInt(edCu.getText().toString()),
                     Integer.parseInt(edGiaDien.getText().toString()));
-            Toast.makeText(this, "Đã Lưu!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Đã Lưu dữ liệu!", Toast.LENGTH_SHORT).show();
+            Display(null); // Tự động làm mới danh sách sau khi lưu
         } catch (Exception e) { Toast.makeText(this, "Nhập thiếu số liệu!", Toast.LENGTH_SHORT).show(); }
     }
 
+    // Hàm hiển thị đổ dữ liệu trực tiếp vào ô Textbox cho phép COPY đi nơi khác
     public void Display(View v) {
         String data = MyDBHandler.Display_Data();
-        new android.app.AlertDialog.Builder(this).setMessage(data).setTitle("Danh sách phòng").show();
+        if (data.equals("")) {
+            edKetQua.setText("Chưa có dữ liệu phòng nào!");
+        } else {
+            edKetQua.setText(data);
+        }
     }
 
     public void Delete(View v) {
-        if (MyDBHandler.Delete_Data(edSo.getText().toString()) > 0)
-            Toast.makeText(this, "Đã Xóa!", Toast.LENGTH_SHORT).show();
+        if (MyDBHandler.Delete_Data(edSo.getText().toString()) > 0) {
+            Toast.makeText(this, "Đã Xóa phòng!", Toast.LENGTH_SHORT).show();
+            Display(null); // Làm mới danh sách sau khi xóa
+        }
     }
 
     public void Backup(View v) {
