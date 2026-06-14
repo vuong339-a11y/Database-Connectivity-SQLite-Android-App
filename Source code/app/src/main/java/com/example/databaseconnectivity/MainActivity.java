@@ -21,10 +21,11 @@ public class MainActivity extends AppCompatActivity {
     private final String FILE_NAME = "data.txt";
     private final String CORRECT_PASSWORD = "1234"; // Thay đổi mật khẩu của bạn tại đây
 
+
     @Override
-    protected void Bundle (savedInstanceState) {
-        super.Bundle(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
 
         // Ánh xạ các thuộc tính giao diện
         etPassword = findViewById(R.id.etPassword);
