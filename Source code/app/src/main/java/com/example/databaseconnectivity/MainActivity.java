@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private final String CORRECT_PASSWORD = "1234"; // Thay đổi mật khẩu của bạn tại đây
 
     @Override
-    protected void Bundle savedInstanceState) {
+    protected void Bundle (savedInstanceState) {
         super.Bundle(savedInstanceState);
         setContentView(R.layout.activity_main);
 
