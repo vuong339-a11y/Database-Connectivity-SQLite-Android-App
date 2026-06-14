@@ -1,4 +1,4 @@
-package com.example.mynotepad; // Bạn nhớ đổi lại đúng package name của bạn
+package com.example.databaseconnectivity; // Bạn nhớ đổi lại đúng package name của bạn
 
 import android.os.Bundle;
 import android.view.View;
