@@ -30,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    if (getSupportActionBar() != null) {
+        getSupportActionBar().hide();
+    }    
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
         // Cách làm Fullscreen cho Android 11 (API 30) trở lên
         android.view.WindowInsetsController controller = getWindow().getInsetsController();
