@@ -30,7 +30,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+        // Cách làm Fullscreen cho Android 11 (API 30) trở lên
+        android.view.WindowInsetsController controller = getWindow().getInsetsController();
+        if (controller != null) {
+            // Ẩn cả thanh trạng thái (Status bar) và thanh điều hướng (Navigation bar)
+            controller.hide(android.view.WindowInsets.Type.statusBars() | android.view.WindowInsets.Type.navigationBars());
+            // Thiết lập chế độ vuốt nhẹ để hiển thị lại tạm thời (Behavior)
+            controller.setSystemBarsBehavior(android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        }
+    } else {
+        // Cách làm Fullscreen cũ cho các máy chạy Android 10 trở xuống
+        getWindow().getDecorView().setSystemUiVisibility(
+                android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+                | android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        );
+    }
         // Ánh xạ các thuộc tính giao diện
         etPassword = findViewById(R.id.etPassword);
         etContent = findViewById(R.id.etContent);
@@ -45,10 +61,11 @@ public class MainActivity extends AppCompatActivity {
                 String inputPass = etPassword.getText().toString();
                 if (inputPass.equals(CORRECT_PASSWORD)) {
                     // Nếu đúng mật khẩu, hiện các trường chỉnh sửa nhật ký lên
-                    tvDiaryLabel.setVisibility(View.VISIBLE);
+                    //tvDiaryLabel.setVisibility(View.VISIBLE);
                     etContent.setVisibility(View.VISIBLE);
                     btnSave.setVisibility(View.VISIBLE);
-                    
+                    etPassword.setVisibility(View.GONE);
+                    btnUnlock.setVisibility(View.GONE);
                     // Tiến hành đọc file data.txt và giải mã đưa vào textbox
                     String decodedData = readAndDecodeFile();
                     etContent.setText(decodedData);
