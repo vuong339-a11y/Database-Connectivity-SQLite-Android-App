@@ -74,62 +74,81 @@ public class MainActivity extends AppCompatActivity {
      * Hàm mã hóa dịch ASCII lên 2 đơn vị và ghi vào file data.txt
      */
     private boolean encodeAndWriteFile(String text) {
-        StringBuilder encodedText = new StringBuilder();
-        
-        // Vòng lặp duyệt từng ký tự để dịch mã ASCII + 2
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            // Dịch chuyển mã ASCII lên 2 đơn vị
-            char encodedChar = (char) (c + 2);
-            encodedText.append(encodedChar);
-        }
-
-        // Tiến hành ghi chuỗi đã mã hóa vào bộ nhớ trong của App (Internal Storage)
-        try (FileOutputStream fos = openFileOutput(FILE_NAME, MODE_PRIVATE)) {
-            fos.write(encodedText.toString().getBytes());
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    StringBuilder encodedText = new StringBuilder();
+    
+    // Vòng lặp dịch mã ASCII + 2
+    for (int i = 0; i < text.length(); i++) {
+        char c = text.charAt(i);
+        char encodedChar = (char) (c + 2);
+        encodedText.append(encodedChar);
     }
+
+    try {
+        // Lấy đường dẫn đến thư mục Download công khai của máy
+        File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        
+        // Tạo file data.txt nằm trong thư mục Download
+        File myFile = new File(downloadDir, FILE_NAME);
+        
+        // Tiến hành ghi file
+        FileWriter writer = new FileWriter(myFile);
+        writer.append(encodedText.toString());
+        writer.flush();
+        writer.close();
+        
+        return true;
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
 
     /**
      * Hàm đọc file data.txt và giải mã dịch ASCII lùi 2 đơn vị
      */
-    private String readAndDecodeFile() {
-        StringBuilder rawContent = new StringBuilder();
+private String readAndDecodeFile() {
+    StringBuilder rawContent = new StringBuilder();
+    
+    try {
+        // Tìm đến file data.txt trong thư mục Download
+        File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File myFile = new File(downloadDir, FILE_NAME);
         
-        // Đọc nội dung file thô từ bộ nhớ
-        try (FileInputStream fis = openFileInput(FILE_NAME);
-             InputStreamReader isr = new InputStreamReader(fis);
-             BufferedReader br = new BufferedReader(isr)) {
-            
-            String line;
-            while ((line = br.readLine()) != null) {
-                rawContent.append(line).append("\n");
-            }
-            
-            // Xóa bớt ký tự xuống dòng thừa ở cuối file do vòng lặp
-            if (rawContent.length() > 0) {
-                rawContent.setLength(rawContent.length() - 1);
-            }
-
-        } catch (Exception e) {
-            // Nếu file chưa tồn tại (lần đầu mở app), trả về chuỗi rỗng
+        // Nếu file chưa tồn tại (lần đầu dùng app), trả về chuỗi rỗng luôn
+        if (!myFile.exists()) {
             return "";
         }
 
-        // Tiến hành giải mã chuỗi thô: dịch ngược mã ASCII - 2
-        String encryptedData = rawContent.toString();
-        StringBuilder decodedText = new StringBuilder();
+        // Tiến hành đọc file
+        FileReader reader = new FileReader(myFile);
+        BufferedReader br = new BufferedReader(reader);
+        String line;
         
-        for (int i = 0; i < encryptedData.length(); i++) {
-            char c = encryptedData.charAt(i);
-            char decodedChar = (char) (c - 2);
-            decodedText.append(decodedChar);
+        while ((line = br.readLine()) != null) {
+            rawContent.append(line).append("\n");
+        }
+        br.close();
+        reader.close();
+        
+        if (rawContent.length() > 0) {
+            rawContent.setLength(rawContent.length() - 1);
         }
 
-        return decodedText.toString();
+    } catch (Exception e) {
+        e.printStackTrace();
+        return "";
+    }
+
+    // Tiến hành giải mã chuỗi: dịch ngược mã ASCII - 2
+    String encryptedData = rawContent.toString();
+    StringBuilder decodedText = new StringBuilder();
+    
+    for (int i = 0; i < encryptedData.length(); i++) {
+        char c = encryptedData.charAt(i);
+        char decodedChar = (char) (c - 2);
+        decodedText.append(decodedChar);
+    }
+
+    return decodedText.toString();
     }
 }
