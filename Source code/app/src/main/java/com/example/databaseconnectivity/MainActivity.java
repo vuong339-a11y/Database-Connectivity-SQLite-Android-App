@@ -172,4 +172,24 @@ private String readAndDecodeFile() {
 
     return decodedText.toString();
     }
+ @Override
+protected void onStop() {
+    super.onStop();
+    
+    // 1. Xóa nội dung nhật ký đang hiển thị trong textbox để bảo mật
+    etContent.setText("");
+    
+    // 2. ẨN ô viết nhật ký và nút Lưu đi
+    tvDiaryLabel.setVisibility(View.GONE);
+    etContent.setVisibility(View.GONE);
+    btnSave.setVisibility(View.GONE);
+    
+    // 3. HIỆN lại ô nhập mật khẩu và nút Mở khóa
+    etPassword.setVisibility(View.VISIBLE);
+    btnUnlock.setVisibility(View.VISIBLE);
+    
+    // 4. Xóa chữ trong ô mật khẩu cũ để người dùng phải nhập lại từ đầu
+    etPassword.setText("");
+}
+
 }
