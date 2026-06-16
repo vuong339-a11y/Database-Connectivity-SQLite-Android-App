@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedId = dsId.get(position);
-                layThong TinChiTiet(selectedId);
+                layThongTinChiTiet(selectedId);
             }
         });
 
