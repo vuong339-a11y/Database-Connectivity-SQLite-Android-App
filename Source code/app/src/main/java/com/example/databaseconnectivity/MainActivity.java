@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void layThongChiTiet(int id) {
+    private void layThongTinChiTiet(int id) {
         try {
             Cursor cursor = database.rawQuery("SELECT * FROM tblChiTieu WHERE id = ?", new String[]{String.valueOf(id)});
             if (cursor.moveToFirst()) {
