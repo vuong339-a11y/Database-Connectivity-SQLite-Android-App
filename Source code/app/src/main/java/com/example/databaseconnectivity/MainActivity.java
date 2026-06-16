@@ -1,198 +1,238 @@
 package com.example.databaseconnectivity; // Bạn nhớ đổi lại đúng package name của bạn
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.ListView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import android.os.Environment;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private EditText etPassword, etContent;
-    private Button btnUnlock, btnSave;
-    private TextView tvDiaryLabel;
+    private EditText etTenKhoanChi, etSoTien, etSoLuong;
+    private Button btnThem, btnSua, btnXem;
+    private ListView lvChiTieu;
 
-    private final String FILE_NAME = "data.txt";
-    private final String CORRECT_PASSWORD = "1234"; // Thay đổi mật khẩu của bạn tại đây
-
+    private SQLiteDatabase database;
+    private String dbPath;
+    private ArrayList<String> dsChiTieuString = new ArrayList<>();
+    private ArrayList<Integer> dsId = new ArrayList<>(); // Lưu ID tương ứng để sửa
+    private ArrayAdapter<String> adapter;
+    private int selectedId = -1; // Lưu ID của dòng đang chọn để sửa
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
-    if (getSupportActionBar() != null) {
-        getSupportActionBar().hide();
-    }    
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-        // Cách làm Fullscreen cho Android 11 (API 30) trở lên
-        android.view.WindowInsetsController controller = getWindow().getInsetsController();
-        if (controller != null) {
-            // Ẩn cả thanh trạng thái (Status bar) và thanh điều hướng (Navigation bar)
-            controller.hide(android.view.WindowInsets.Type.statusBars() | android.view.WindowInsets.Type.navigationBars());
-            // Thiết lập chế độ vuốt nhẹ để hiển thị lại tạm thời (Behavior)
-            controller.setSystemBarsBehavior(android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-        }
-    } else {
-        // Cách làm Fullscreen cũ cho các máy chạy Android 10 trở xuống
-        getWindow().getDecorView().setSystemUiVisibility(
-                android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
-                | android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        );
-    }
-        // Ánh xạ các thuộc tính giao diện
-        etPassword = findViewById(R.id.etPassword);
-        etContent = findViewById(R.id.etContent);
-        btnUnlock = findViewById(R.id.btnUnlock);
-        btnSave = findViewById(R.id.btnSave);
-        tvDiaryLabel = findViewById(R.id.tvDiaryLabel);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-        // Sự kiện khi nhấn nút Mở Nhật Ký
-        btnUnlock.setOnClickListener(new View.OnClickListener() {
+        // 1. Cấu hình Fullscreen tràn viền 100% & Ẩn thanh tên app
+        if (getSupportActionBar() != null) getSupportActionBar().hide();
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+                controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+            }
+        }
+
+        // 2. Ánh xạ các thành phần giao diện
+        etTenKhoanChi = findViewById(R.id.etTenKhoanChi);
+        etSoTien = findViewById(R.id.etSoTien);
+        etSoLuong = findViewById(R.id.etSoLuong);
+        btnThem = findViewById(R.id.btnThem);
+        btnSua = findViewById(R.id.btnSua);
+        btnXem = findViewById(R.id.btnXem);
+        lvChiTieu = findViewById(R.id.lvChiTieu);
+
+        // Cấu hình ListView
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dsChiTieuString);
+        lvChiTieu.setAdapter(adapter);
+
+        // 3. Khởi tạo Database SQLite trong thư mục Download
+        initDatabase();
+
+        // 4. Các sự kiện nút bấm
+        btnThem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String inputPass = etPassword.getText().toString();
-                if (inputPass.equals(CORRECT_PASSWORD)) {
-                    // Nếu đúng mật khẩu, hiện các trường chỉnh sửa nhật ký lên
-                    //tvDiaryLabel.setVisibility(View.VISIBLE);
-                    etContent.setVisibility(View.VISIBLE);
-                    btnSave.setVisibility(View.VISIBLE);
-                    etPassword.setVisibility(View.GONE);
-                    btnUnlock.setVisibility(View.GONE);
-                    // Tiến hành đọc file data.txt và giải mã đưa vào textbox
-                    String decodedData = readAndDecodeFile();
-                    etContent.setText(decodedData);
-                    Toast.makeText(MainActivity.this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MainActivity.this, "Sai mật khẩu! Không thể mở.", Toast.LENGTH_SHORT).show();
-                }
+                themKhoanChi();
             }
         });
 
-        // Sự kiện khi nhấn nút Lưu Nhật Ký
-        btnSave.setOnClickListener(new View.OnClickListener() {
+        btnSua.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String rawText = etContent.getText().toString();
-                boolean success = encodeAndWriteFile(rawText);
-                if (success) {
-                    Toast.makeText(MainActivity.this, "Đã mã hóa và lưu thành công!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MainActivity.this, "Lỗi khi lưu file!", Toast.LENGTH_SHORT).show();
-                }
+                suaKhoanChi();
             }
         });
+
+        btnXem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hienThiDanhSach();
+                Toast.makeText(MainActivity.this, "Đã cập nhật danh sách!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Click vào 1 dòng trong danh sách để chuẩn bị sửa
+        lvChiTieu.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectedId = dsId.get(position);
+                layThong TinChiTiet(selectedId);
+            }
+        });
+
+        // Mặc định mở app lên là load danh sách luôn
+        hienThiDanhSach();
     }
 
-    /**
-     * Hàm mã hóa dịch ASCII lên 2 đơn vị và ghi vào file data.txt
-     */
-    private boolean encodeAndWriteFile(String text) {
-    StringBuilder encodedText = new StringBuilder();
-    
-    // Vòng lặp dịch mã ASCII + 2
-    for (int i = 0; i < text.length(); i++) {
-        char c = text.charAt(i);
-        char encodedChar = (char) (c + 2);
-        encodedText.append(encodedChar);
+    private void initDatabase() {
+        try {
+            // Lấy đường dẫn đến thư mục Download của Samsung A25
+            File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            File dbFile = new File(downloadDir, "ChiTieu.db");
+            dbPath = dbFile.getAbsolutePath();
+
+            // Mở hoặc tạo mới database
+            database = SQLiteDatabase.openOrCreateDatabase(dbPath, null);
+
+            // Tạo bảng nếu chưa tồn tại
+            String sqlCreate = "CREATE TABLE IF NOT EXISTS tblChiTieu (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "ten TEXT, " +
+                    "sotien INTEGER, " +
+                    "soluong INTEGER, " +
+                    "tong INTEGER)";
+            database.execSQL(sqlCreate);
+
+            // Kiểm tra nếu bảng trống thì tự động thêm 3 record mẫu sẵn
+            Cursor cursor = database.rawQuery("SELECT COUNT(*) FROM tblChiTieu", null);
+            cursor.moveToFirst();
+            int count = cursor.getInt(0);
+            cursor.close();
+
+            if (count == 0) {
+                database.execSQL("INSERT INTO tblChiTieu (ten, sotien, soluong, tong) VALUES ('Ăn sáng', 35000, 1, 35000)");
+                database.execSQL("INSERT INTO tblChiTieu (ten, sotien, soluong, tong) VALUES ('Xăng xe', 50000, 2, 100000)");
+                database.execSQL("INSERT INTO tblChiTieu (ten, sotien, soluong, tong) VALUES ('Cà phê họp mặt', 45000, 3, 135000)");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Lỗi khởi tạo DB trong thư mục Download!", Toast.LENGTH_LONG).show();
+        }
     }
 
-    try {
-        // Lấy đường dẫn đến thư mục Download công khai của máy
-        File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    private void hienThiDanhSach() {
+        dsChiTieuString.clear();
+        dsId.clear();
         
-        // Tạo file data.txt nằm trong thư mục Download
-        File myFile = new File(downloadDir, FILE_NAME);
-        
-        // Tiến hành ghi file
-        FileWriter writer = new FileWriter(myFile);
-        writer.append(encodedText.toString());
-        writer.flush();
-        writer.close();
-        
-        return true;
-    } catch (Exception e) {
-        e.printStackTrace();
-        return false;
-    }
-}
+        try {
+            Cursor cursor = database.rawQuery("SELECT * FROM tblChiTieu ORDER BY id DESC", null);
+            while (cursor.moveToNext()) {
+                int id = cursor.getInt(0);
+                String ten = cursor.getString(1);
+                int sotien = cursor.getInt(2);
+                int soluong = cursor.getInt(3);
+                int tong = cursor.getInt(4);
 
-    /**
-     * Hàm đọc file data.txt và giải mã dịch ASCII lùi 2 đơn vị
-     */
-private String readAndDecodeFile() {
-    StringBuilder rawContent = new StringBuilder();
-    
-    try {
-        // Tìm đến file data.txt trong thư mục Download
-        File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        File myFile = new File(downloadDir, FILE_NAME);
-        
-        // Nếu file chưa tồn tại (lần đầu dùng app), trả về chuỗi rỗng luôn
-        if (!myFile.exists()) {
-            return "";
+                dsId.add(id);
+                // Định dạng dòng hiển thị trong ListView
+                dsChiTieuString.add(id + ". " + ten + "\nGiá: " + sotien + "đ x " + soluong + " = " + tong + "đ");
+            }
+            cursor.close();
+            adapter.notifyDataSetChanged(); // Cập nhật lại giao diện ListView
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void themKhoanChi() {
+        String ten = etTenKhoanChi.getText().toString().trim();
+        String txtSotien = etSoTien.getText().toString().trim();
+        String txtSoluong = etSoLuong.getText().toString().trim();
+
+        if (ten.isEmpty() || txtSotien.isEmpty() || txtSoluong.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        // Tiến hành đọc file
-        FileReader reader = new FileReader(myFile);
-        BufferedReader br = new BufferedReader(reader);
-        String line;
-        
-        while ((line = br.readLine()) != null) {
-            rawContent.append(line).append("\n");
+        int sotien = Integer.parseInt(txtSotien);
+        int soluong = Integer.parseInt(txtSoluong);
+        int tong = sotien * soluong; // Tự động tính tổng
+
+        try {
+            String sql = "INSERT INTO tblChiTieu (ten, sotien, soluong, tong) VALUES (?, ?, ?, ?)";
+            database.execSQL(sql, new Object[]{ten, sotien, soluong, tong});
+            
+            xoaTrangInput();
+            hienThiDanhSach();
+            Toast.makeText(this, "Thêm khoản chi thành công!", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Lỗi khi thêm dữ liệu!", Toast.LENGTH_SHORT).show();
         }
-        br.close();
-        reader.close();
-        
-        if (rawContent.length() > 0) {
-            rawContent.setLength(rawContent.length() - 1);
+    }
+
+    private void suaKhoanChi() {
+        if (selectedId == -1) {
+            Toast.makeText(this, "Vui lòng chọn 1 khoản chi từ danh sách bên dưới để sửa!", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-    } catch (Exception e) {
-        e.printStackTrace();
-        return "";
+        String ten = etTenKhoanChi.getText().toString().trim();
+        String txtSotien = etSoTien.getText().toString().trim();
+        String txtSoluong = etSoLuong.getText().toString().trim();
+
+        if (ten.isEmpty() || txtSotien.isEmpty() || txtSoluong.isEmpty()) {
+            Toast.makeText(this, "Thông tin sửa không được để trống!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int sotien = Integer.parseInt(txtSotien);
+        int soluong = Integer.parseInt(txtSoluong);
+        int tong = sotien * soluong;
+
+        try {
+            String sql = "UPDATE tblChiTieu SET ten=?, sotien=?, soluong=?, tong=? WHERE id=?";
+            database.execSQL(sql, new Object[]{ten, sotien, soluong, tong, selectedId});
+            
+            xoaTrangInput();
+            selectedId = -1; // Reset lại id chọn
+            hienThiDanhSach();
+            Toast.makeText(this, "Đã sửa thông tin thành công!", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Lỗi khi cập nhật!", Toast.LENGTH_SHORT).show();
+        }
     }
 
-    // Tiến hành giải mã chuỗi: dịch ngược mã ASCII - 2
-    String encryptedData = rawContent.toString();
-    StringBuilder decodedText = new StringBuilder();
-    
-    for (int i = 0; i < encryptedData.length(); i++) {
-        char c = encryptedData.charAt(i);
-        char decodedChar = (char) (c - 2);
-        decodedText.append(decodedChar);
+    private void layThongChiTiet(int id) {
+        try {
+            Cursor cursor = database.rawQuery("SELECT * FROM tblChiTieu WHERE id = ?", new String[]{String.valueOf(id)});
+            if (cursor.moveToFirst()) {
+                etTenKhoanChi.setText(cursor.getString(1));
+                etSoTien.setText(String.valueOf(cursor.getInt(2)));
+                etSoLuong.setText(String.valueOf(cursor.getInt(3)));
+            }
+            cursor.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    return decodedText.toString();
+    private void xoaTrangInput() {
+        etTenKhoanChi.setText("");
+        etSoTien.setText("");
+        etSoLuong.setText("");
     }
- @Override
-protected void onStop() {
-    super.onStop();
-    
-    // 1. Xóa nội dung nhật ký đang hiển thị trong textbox để bảo mật
-    etContent.setText("");
-    
-    // 2. ẨN ô viết nhật ký và nút Lưu đi
-    tvDiaryLabel.setVisibility(View.GONE);
-    etContent.setVisibility(View.GONE);
-    btnSave.setVisibility(View.GONE);
-    
-    // 3. HIỆN lại ô nhập mật khẩu và nút Mở khóa
-    etPassword.setVisibility(View.VISIBLE);
-    btnUnlock.setVisibility(View.VISIBLE);
-    
-    // 4. Xóa chữ trong ô mật khẩu cũ để người dùng phải nhập lại từ đầu
-    etPassword.setText("");
-}
-
 }
