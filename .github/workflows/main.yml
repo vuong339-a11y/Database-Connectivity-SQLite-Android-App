@@ -12,7 +12,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'gradle'
 
       # Sửa đường dẫn ở đây: thêm Source code/Source code/ vào trước gradlew
       - name: Grant execute permission
@@ -22,7 +21,7 @@ jobs:
         # Phải chui vào thư mục đó rồi mới chạy lệnh build
         run: |
           cd "Source code"
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug
 
       - name: Upload APK Result
         uses: actions/upload-artifact@v4
