@@ -3,12 +3,12 @@ plugins {
 }
 
 android {
-    compileSdk 35
+    compileSdk 32
 
     defaultConfig {
         applicationId "com.example.databaseconnectivity"
-        minSdk 26
-        targetSdk 35
+        minSdk 22
+        targetSdk 32
         versionCode 1
         versionName "1.0"
 
@@ -18,16 +18,12 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
-         
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-        
-        
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
