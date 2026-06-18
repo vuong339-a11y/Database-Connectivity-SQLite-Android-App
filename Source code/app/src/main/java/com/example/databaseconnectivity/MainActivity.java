@@ -1,4 +1,4 @@
-package com.example.databaseconnectivity; // Bạn nhớ đổi lại đúng package name của bạn
+package com.example.pthue; // Bạn nhớ đổi lại đúng package name của bạn
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
